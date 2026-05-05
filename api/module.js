@@ -14,10 +14,11 @@ function generateCode(addon) {
   const name    = addon.name.toUpperCase();
   const ver     = addon.version || "1.0.0";
   const id      = addon.id + ".8spine";
+  const constName = slug.replace(/-/g, "_").toUpperCase() + "_MODULE_CODE";
 
   // !! No async/await — 8SPINE sandbox uses new Function() which forbids it.
   // All methods use Promise .then() chains only.
-  return `var BASE=${JSON.stringify(base)};
+  return `export const ${constName} = \`var BASE=${JSON.stringify(base)};
 var ${varName}={
   id:${JSON.stringify(id)},
   name:${JSON.stringify(name)},
@@ -84,7 +85,7 @@ var ${varName}={
     .catch(function(){return {artist:{},tracks:[]};});
   }
 };
-return ${varName};`;
+return ${varName};\`;
 }
 
 export default async function handler(req, res) {
