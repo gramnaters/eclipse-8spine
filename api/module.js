@@ -294,7 +294,7 @@ function generateModuleCode(addon) {
   code += `  name: ${JSON.stringify(name)},\n`;
   code += `  version: ${JSON.stringify(ver)},\n`;
   code += `  labels: ${labels},\n`;
-  if (cfg.settings) {
+  if (settingsBlock !== "undefined") {
     code += `  settings: ${settingsBlock},\n`;
   }
   code += `  searchTracks: searchTracks,\n`;
