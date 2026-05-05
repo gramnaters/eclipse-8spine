@@ -18,7 +18,7 @@ function generateCode(addon) {
 
   // !! No async/await — 8SPINE sandbox uses new Function() which forbids it.
   // All methods use Promise .then() chains only.
-  return `export const ${constName} = \`var BASE=${JSON.stringify(base)};
+  const innerCode = `var BASE=${JSON.stringify(base)};
 var ${varName}={
   id:${JSON.stringify(id)},
   name:${JSON.stringify(name)},
@@ -85,7 +85,9 @@ var ${varName}={
     .catch(function(){return {artist:{},tracks:[]};});
   }
 };
-return ${varName};\`;
+return ${varName};`;
+
+  return "export const " + constName + " = `" + innerCode.replace(/`/g, "\\`") + "`;";
 }
 
 export default async function handler(req, res) {
