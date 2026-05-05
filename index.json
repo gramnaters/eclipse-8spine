@@ -1,0 +1,39 @@
+{
+  "category:modules": [
+    {
+      "id": "eclipse-addon-store",
+      "name": "ECLIPSE ADDON STORE",
+      "pkg": "com.eclipse.addonstore.8spine",
+      "file": "eclipseAddonStore.8spine",
+      "download": "modules/eclipseAddonStore.8spine",
+      "version": "v1.0.0",
+      "code": 100,
+      "type": "STREAM",
+      "author": "Eclipse Community",
+      "description": "STREAM FROM ECLIPSE COMMUNITY ADDONS — LOSSLESS, SOUNDCLOUD, TIDAL, DEEZER & MORE",
+      "tags": [
+        "LOSSLESS",
+        "MULTI-SOURCE",
+        "COMMUNITY",
+        "FLAC"
+      ],
+      "featured": true,
+      "trusted": true,
+      "nsfw": false,
+      "size": 4604,
+      "lang": "all",
+      "folder": "modules",
+      "sources": [
+        {
+          "name": "ECLIPSE ADDON STORE",
+          "lang": "all",
+          "id": "eclipse-addon-store",
+          "baseUrl": "."
+        }
+      ]
+    }
+  ],
+  "category:debrid_modules": [],
+  "category:artworks": [],
+  "category:testing": []
+}
