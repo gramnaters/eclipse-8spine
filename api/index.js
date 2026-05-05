@@ -25,9 +25,7 @@ const ADDON_META = {
     description: "TIDAL full catalog search + Qobuz Hi-Res 24-bit streams. No account required.",
   },
   "com.eclipse.community.deezertidal": {
-    tags: ["LOSSLESS", "FLAC", "TIDAL"],
-    featured: false,
-    description: "Deezer search + TIDAL FLAC streaming via Claudochrome.",
+    skip: true,
   },
   "com.eclipse.community.spotiflac": {
     tags: ["LOSSLESS", "FLAC", "HIFI"],
