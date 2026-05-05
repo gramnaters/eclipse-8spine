@@ -1,6 +1,0 @@
-{
-  "name": "eclipse-8spine-bridge",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Dynamic 8SPINE source that auto-syncs with the Eclipse Music addon registry"
-}
