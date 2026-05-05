@@ -1,6 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/index.json",        "destination": "/api/index" },
-    { "source": "/modules/:file",     "destination": "/api/module?file=:file" }
-  ]
-}
