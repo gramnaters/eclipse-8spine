@@ -93,7 +93,17 @@ function generateModuleCode(addon) {
   const ver = addon.version || "1.0.0";
   const id = addon.id;
   const labels = JSON.stringify(cfg.labels || ["STREAM"]);
-  const settingsBlock = cfg.settings ? JSON.stringify(cfg.settings) : "undefined";
+  let settingsObj = cfg.settings || {};
+  if (cfg.tokenMode === "generate" || cfg.tokenMode === "hardcoded") {
+    settingsObj.customToken = {
+      type: "text",
+      label: "Custom Access Token (Optional)",
+      description: "Enter a custom hash if the default is rate limited. You can generate one from the addon's setup page.",
+      defaultValue: ""
+    };
+  }
+
+  const settingsBlock = Object.keys(settingsObj).length > 0 ? JSON.stringify(settingsObj) : "undefined";
 
   // ── Build the module code ──────────────────────────────────────────────────
   let code = "";
@@ -110,15 +120,23 @@ function generateModuleCode(addon) {
     code += `}).then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })\n`;
     code += `  .then(function(d) { _token = d.token || null; return _token; })\n`;
     code += `  .catch(function() { return null; });\n\n`;
-    code += `function _ensureToken() {\n`;
+    code += `function _ensureToken(context) {\n`;
+    code += `  if (context && context.settings && context.settings.customToken && context.settings.customToken.value) {\n`;
+    code += `    return Promise.resolve(context.settings.customToken.value.trim());\n`;
+    code += `  }\n`;
     code += `  if (_token) return Promise.resolve(_token);\n`;
     code += `  return _tokenPromise;\n`;
     code += `}\n\n`;
   } else if (cfg.tokenMode === "hardcoded") {
     code += `_token = ${JSON.stringify(cfg.hardcodedHash)};\n`;
-    code += `function _ensureToken() { return Promise.resolve(_token); }\n\n`;
+    code += `function _ensureToken(context) {\n`;
+    code += `  if (context && context.settings && context.settings.customToken && context.settings.customToken.value) {\n`;
+    code += `    return Promise.resolve(context.settings.customToken.value.trim());\n`;
+    code += `  }\n`;
+    code += `  return Promise.resolve(_token);\n`;
+    code += `}\n\n`;
   } else {
-    code += `function _ensureToken() { return Promise.resolve(null); }\n\n`;
+    code += `function _ensureToken(context) { return Promise.resolve(null); }\n\n`;
   }
 
   // ── API path builder ───────────────────────────────────────────────────────
@@ -144,9 +162,9 @@ function generateModuleCode(addon) {
 
   // ── searchTracks ───────────────────────────────────────────────────────────
   const needsTokenInId = cfg.tokenMode === "generate";
-  code += `async function searchTracks(query, limit) {\n`;
+  code += `async function searchTracks(query, limit, context) {\n`;
   code += `  var lim = limit || 20;\n`;
-  code += `  var token = await _ensureToken();\n`;
+  code += `  var token = await _ensureToken(context);\n`;
   if (cfg.tokenMode === "generate") {
     code += `  if (!token) return { tracks: [], total: 0 };\n`;
   }
@@ -176,14 +194,14 @@ function generateModuleCode(addon) {
   code += `}\n\n`;
 
   // ── getTrackStreamUrl ──────────────────────────────────────────────────────
-  code += `async function getTrackStreamUrl(trackId, quality) {\n`;
+  code += `async function getTrackStreamUrl(trackId, quality, context) {\n`;
   if (needsTokenInId) {
     code += `  var sep = trackId.indexOf('__');\n`;
     code += `  if (sep === -1) return { streamUrl: null, track: { id: trackId, audioQuality: 'HIGH' } };\n`;
     code += `  var token = trackId.slice(0, sep);\n`;
     code += `  var realId = trackId.slice(sep + 2);\n`;
   } else {
-    code += `  var token = await _ensureToken();\n`;
+    code += `  var token = await _ensureToken(context);\n`;
     code += `  var realId = trackId;\n`;
   }
   code += `  try {\n`;
@@ -200,13 +218,13 @@ function generateModuleCode(addon) {
   code += `}\n\n`;
 
   // ── getAlbum ───────────────────────────────────────────────────────────────
-  code += `async function getAlbum(albumId) {\n`;
+  code += `async function getAlbum(albumId, context) {\n`;
   if (needsTokenInId) {
     code += `  var sep = albumId.indexOf('__');\n`;
-    code += `  var token = sep !== -1 ? albumId.slice(0, sep) : (await _ensureToken());\n`;
+    code += `  var token = sep !== -1 ? albumId.slice(0, sep) : (await _ensureToken(context));\n`;
     code += `  var realId = sep !== -1 ? albumId.slice(sep + 2) : albumId;\n`;
   } else {
-    code += `  var token = await _ensureToken();\n`;
+    code += `  var token = await _ensureToken(context);\n`;
     code += `  var realId = albumId;\n`;
   }
   code += `  try {\n`;
@@ -234,13 +252,13 @@ function generateModuleCode(addon) {
   code += `}\n\n`;
 
   // ── getArtist ──────────────────────────────────────────────────────────────
-  code += `async function getArtist(artistId) {\n`;
+  code += `async function getArtist(artistId, context) {\n`;
   if (needsTokenInId) {
     code += `  var sep = artistId.indexOf('__');\n`;
-    code += `  var token = sep !== -1 ? artistId.slice(0, sep) : (await _ensureToken());\n`;
+    code += `  var token = sep !== -1 ? artistId.slice(0, sep) : (await _ensureToken(context));\n`;
     code += `  var realId = sep !== -1 ? artistId.slice(sep + 2) : artistId;\n`;
   } else {
-    code += `  var token = await _ensureToken();\n`;
+    code += `  var token = await _ensureToken(context);\n`;
     code += `  var realId = artistId;\n`;
   }
   code += `  try {\n`;
