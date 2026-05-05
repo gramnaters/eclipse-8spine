@@ -26,39 +26,39 @@ export default async function handler(req, res) {
   try {
     const upstream = await fetch(ECLIPSE_REGISTRY);
     if (!upstream.ok) throw new Error("Eclipse registry returned " + upstream.status);
-    const data   = await upstream.json();
+    const data = await upstream.json();
     const addons = (data.addons || []).filter(a => a.setupUrl || a.manifestUrl);
 
     const modules = addons.map(function(addon) {
       const slug = slugify(addon.id);
       const meta = ADDON_META[addon.id] || { tags: ["STREAM"], featured: false };
       return {
-        id:          slug,
-        name:        addon.name.toUpperCase(),
-        pkg:         addon.id + ".8spine",
-        file:        slug + ".8spine",
-        download:    "modules/" + slug + ".8spine",
-        version:     "v" + (addon.version || "1.0.0"),
-        code:        100,
-        type:        "STREAM",
-        author:      addon.author || "Eclipse Community",
+        id: slug,
+        name: addon.name.toUpperCase(),
+        pkg: addon.id,
+        file: slug + ".8spine",
+        download: "modules/" + slug + ".8spine",
+        version: "v" + (addon.version || "1.0.0"),
+        code: parseInt((addon.version || "1.0.0").replace(/\./g, ""), 10) || 100,
+        type: "STREAM",
+        author: addon.author || "Eclipse Community",
         description: addon.description || ("STREAM VIA ECLIPSE · " + addon.name.toUpperCase()),
-        tags:        meta.tags,
-        featured:    meta.featured,
-        trusted:     true,
-        nsfw:        false,
-        size:        2800,
-        lang:        "all",
-        folder:      "modules",
+        tags: meta.tags,
+        featured: meta.featured,
+        trusted: true,
+        nsfw: false,
+        size: 2800,
+        lang: "all",
+        folder: "modules",
         sources: [{ name: addon.name.toUpperCase(), lang: "all", id: slug, baseUrl: "." }]
       };
     });
 
     res.status(200).json({
-      "category:modules":        modules,
+      "category:modules": modules,
       "category:debrid_modules": [],
-      "category:artworks":       [],
-      "category:testing":        []
+      "category:artworks": [],
+      "category:testing": []
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
