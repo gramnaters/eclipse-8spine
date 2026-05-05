@@ -2,6 +2,6 @@
   "rewrites": [
     { "source": "/",              "destination": "/api/index.js" },
     { "source": "/index.json",    "destination": "/api/index.js" },
-    { "source": "/modules/(.*)",  "destination": "/api/module.js?file=$1" }
+    { "source": "/modules/:file", "destination": "/api/module.js?file=:file" }
   ]
 }
